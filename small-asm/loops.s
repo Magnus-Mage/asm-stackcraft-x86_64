@@ -34,6 +34,7 @@ for_loop:
 	
 	# Convert i to acsii
 	mov eax, ecx
+	mov al, cl
 	add al, '0'
 	mov [buffer], al
 
@@ -82,6 +83,7 @@ while_loop:
 	
 	# Convert i to acsii
 	mov eax, ecx
+	mov al, cl
 	add al, '0'
 	mov [buffer], al
 
@@ -145,7 +147,7 @@ dowhile_loop:
 	
 	inc ecx
 	cmp ecx, 5
-	jl for_loop
+	jl dowhile_loop
 
 # @brief Exit code
 exit_dowhile:
