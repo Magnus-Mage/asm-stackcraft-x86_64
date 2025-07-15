@@ -1,0 +1,15 @@
+# Object files
+*.o
+
+# Executables (commonly no extension on Linux)
+a.out
+*.out
+*.bin
+*.elf
+*.exe
+
+# Editor/IDE backups
+*~
+*.swp
+*.bak
+
