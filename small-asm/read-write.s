@@ -10,15 +10,15 @@ STDOUT		= 	1	# standard output
 # @brief declare a buffer for the prompt string
 .section .bss
 	uinput_len	=	24			# 24 bytes for user input
-	uinput	     	:  	.skip uinput_len	# buffer for user input
+	uinput:     	  	.skip uinput_len	# buffer for user input
 
 # ------------------------------
 # @brief some sys statements 
 .section .data
 	prompt		:	.asciz "Please input some text: "
-	prompt_len	=	.	- prompt
+	prompt_len	=	.	- prompt - 1			# sub 1 for null terminator
 	text		:	.asciz "You Wrote: "
-	text_len	=	.	- text
+	text_len	=	.	- text - 1
 
 # ------------------------------
 # @brief instructions for read and write string from terminal
@@ -46,7 +46,7 @@ _start:
 	syscall
 
 	pop rdx			# (1)
-	mov rsi, uinput		# print out the read string
+	lea rsi, uinput		# print out the read string
 	mov rdi, STDOUT
 	mov rax, SYS_WRITE
 	syscall
