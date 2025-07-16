@@ -12,3 +12,14 @@ SYS_GETDENTS 	=	78	# read entries ( change to 217 for 64 bit)
 # @brief buffer for directory entries
 .section .bss
 	buffer:		.skip	4096
+
+
+
+
+
+# -------------------------------
+# @brief terminate the code
+exit_code:
+	mov edi, edi
+	mov rax, SYS_EXIT
+	syscall
