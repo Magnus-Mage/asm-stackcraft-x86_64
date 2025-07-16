@@ -33,14 +33,14 @@ mov rdx, 5
 syscall
 
 # @brief For loop to print 0-5
-mov rcx, 0              # i = 0
+mov rbx, 0              # i = 0
                               for_loop:
-                              cmp rcx, 5
+                              cmp rbx, 5
                               jge exit_for
 
 # Convert i to acsii
-                              mov rax, rcx
-                              add rax, '0'
+                              mov al, bl
+                              add al, '0'
                               mov [buffer], al
 
 # Print the digit
@@ -57,7 +57,7 @@ mov rcx, 0              # i = 0
                               mov rdx, 1
                               syscall
 
-                              inc rcx
+                              inc rbx
                               jmp for_loop
 
 # @brief Exit code, pretty much the same for everyone but as assembly is sequantial, have to use this but can find some better way
@@ -81,14 +81,13 @@ mov rcx, 0              # i = 0
 # Therefore, simple variations can be interchanged but not more complex ones
 
 
-                              mov ecx, 0              # i = 0
+                              mov rbx, 0              # i = 0
                                       while_loop:
-                                      cmp ecx, 5
-                                      jge exit_while
+                                      cmp rbx, 5
+                                      jae exit_while
 
 # Convert i to acsii
-                                      mov eax, ecx
-                                      mov al, cl
+                                      mov al, bl
                                       add al, '0'
                                       mov [buffer], al
 
@@ -106,7 +105,7 @@ mov rcx, 0              # i = 0
                                       mov rdx, 1
                                       syscall
 
-                                      inc ecx
+                                      inc rbx
                                       jmp while_loop
 
 # @brief Exit code
@@ -128,11 +127,11 @@ mov rcx, 0              # i = 0
 # @brief A do while loop to print 0-5
 
 
-                                      mov ecx, 0              # i = 0
+                                      mov rbx, 0              # i = 0
                                               dowhile_loop:
 
 # Convert i to acsii
-                                              mov eax, ecx
+                                              mov al, bl
                                               add al, '0'
                                               mov [buffer], al
 
@@ -150,9 +149,9 @@ mov rcx, 0              # i = 0
                                               mov rdx, 1
                                               syscall
 
-                                              inc ecx
-                                              cmp ecx, 5
-                                              jl dowhile_loop
+                                              inc rbx
+                                              cmp rbx, 5
+                                              jb dowhile_loop
 
 # @brief Exit code
                                               exit_dowhile:
