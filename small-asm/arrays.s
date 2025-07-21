@@ -13,7 +13,7 @@ SYS_EXIT	=	60	# terminate the program
 .section .data
 	arr	:	.quad 0, 1, 2, 3, 4, 5	# 64 bit integer
 	out	:    	.asciz "Sum = "         # output text
-	out_len =	. - out
+	out_len =	. - out - 1		# subtract 1 for null terminator
 	newline :	.asciz "\n"
 
 #--------------------------------
@@ -28,62 +28,75 @@ SYS_EXIT	=	60	# terminate the program
 	.global _start
 
 _start:
-	mov rcx, 6		# size of the array
-	xor rbx, rbx		# temp to store the sum
-	lea rsi, arr		# pointer to the array
+	# Initialize loop variables
+	mov rcx, 6		# rcx = array size (loop counter)
+	xor rbx, rbx		# rbx = accumulator for sum (initialize to 0)
+	lea rsi, arr		# rsi = pointer to start of array
 
+	#--------------------------------
+	# @brief main loop to traverse array and calculate sum
 top:
-	add rbx, [rsi]		# add current array element to temp
+	add rbx, [rsi]		# add current array element to accumulator
 	
-	imul rsi, 8		# increment the pointer
-	dec rax			# decrement the size
-	cmp rcx, 0		# compare value in rax to 0
-	jnz top			# loop back if not equal to zero
+	# Move to next array element
+	add rsi, 8		# increment pointer by 8 bytes (size of .quad)
+	dec rcx			# decrement loop counter
+	cmp rcx, 0		# check if we've processed all elements
+	jnz top			# jump back to top if counter != 0
 
+	#--------------------------------
+	# @brief store final result
 done:
-	mov [sum], rbx 		# store sum in "sum"
+	mov [sum], rbx 		# store accumulated sum in memory
 
+	#--------------------------------
+	# @brief display the result to stdout
 display:
-	mov rax, SYS_WRITE
-    	mov rdi, STDOUT
-	lea rsi, out
-        mov rdx, out_len
-        syscall
+	# Print "Sum = " message
+	mov rax, SYS_WRITE	# system call number for write
+    	mov rdi, STDOUT		# file descriptor (stdout)
+	lea rsi, out		# pointer to message string
+        mov rdx, out_len	# length of message
+        syscall			# invoke system call
 
-	
-        # Convert i to acsii
-        mov rax, [sum]
-        lea rsi, [buffer + 32]
-        mov byte ptr [rsi], 0
-	dec rsi
-	mov rbx, 10
+	#--------------------------------
+	# @brief convert sum to ASCII string for display
+        mov rax, [sum]		# load sum value into rax for division
+        lea rsi, [buffer + 31]	# point to end of buffer (null terminator position)
+        mov byte ptr [rsi], 0	# place null terminator
+	dec rsi			# move back one position
+	mov rbx, 10		# divisor for base-10 conversion
 
+	# Convert number to string (builds string backwards)
 convert_loop:
-	xor rdx, rdx
-	div rbx
-	add dl, '0'
-	mov [rsi], dl
-	dec rsi
-	test rax, rax
-	jnz convert_loop
+	xor rdx, rdx		# clear rdx (high part of dividend)
+	div rbx			# rax = rax/10, rdx = remainder
+	add dl, '0'		# convert remainder digit to ASCII
+	mov [rsi], dl		# store ASCII digit in buffer
+	dec rsi			# move backward in buffer
+	test rax, rax		# check if quotient is zero
+	jnz convert_loop	# continue if more digits remain
 
-	# Print the number
-	inc rsi
-	mov rax, SYS_WRITE
- 	mov rdi, STDOUT
-	lea rdx, [buffer + 31]
-	sub rdx, rsi
-	syscall
+	#--------------------------------
+	# @brief print the converted number
+	inc rsi			# move forward to first digit
+	mov rax, SYS_WRITE	# system call for write
+ 	mov rdi, STDOUT		# stdout file descriptor
+	lea rdx, [buffer + 31]	# calculate string length
+	sub rdx, rsi		# rdx = end_pos - start_pos = length
+	syscall			# print the number
 
-	# Print a new line
-	mov rax, SYS_WRITE
-	mov rdi, STDOUT
-	lea rsi, newline
-	mov rdx, 1
-	syscall
+	#--------------------------------
+	# @brief print newline for clean output
+	mov rax, SYS_WRITE	# system call for write
+	mov rdi, STDOUT		# stdout file descriptor
+	lea rsi, newline	# pointer to newline character
+	mov rdx, 1		# length of newline (1 byte)
+	syscall			# print newline
  
+	#--------------------------------
+	# @brief clean program termination
 exit_code:
-	xor rdi, rdi
-	mov rax, 60
-	syscall
-
+	xor rdi, rdi		# exit status = 0 (success)
+	mov rax, SYS_EXIT	# system call number for exit
+	syscall			# terminate program
