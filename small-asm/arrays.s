@@ -36,13 +36,8 @@ _start:
 	#--------------------------------
 	# @brief main loop to traverse array and calculate sum
 top:
-	add rbx, [rsi]		# add current array element to accumulator
-	
-	# Move to next array element
-	add rsi, 8		# increment pointer by 8 bytes (size of .quad)
-	dec rcx			# decrement loop counter
-	cmp rcx, 0		# check if we've processed all elements
-	jnz top			# jump back to top if counter != 0
+    add rbx, [rsi + 8 * rcx - 8]
+    loop top
 
 	#--------------------------------
 	# @brief store final result
