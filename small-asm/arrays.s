@@ -11,15 +11,15 @@ SYS_EXIT	=	60	# terminate the program
 
 # @brief define the array
 .section .data
-	arr	:	.quad 0, 1, 2, 3, 4, 5	# 64 bit integer
-	out	:    	.asciz "Sum = "         # output text
-	out_len =	. - out - 1		# subtract 1 for null terminator
+	arr	    :	.quad 0, 1, 2, 3, 4, 5	    # 64 bit integer
+	out	    :   .asciz "Sum = "             # output text
+	out_len =	. - out - 1		            # subtract 1 for null terminator
 	newline :	.asciz "\n"
 
 #--------------------------------
 # @brief a buffer for final print
 .section .bss
-	sum	: 	.space 8		# space for 64-bit sum
+	sum	    : 	.space 8		# space for 64-bit sum
 	buffer	:	.space 32
 
 #--------------------------------
@@ -49,16 +49,16 @@ done:
 display:
 	# Print "Sum = " message
 	mov rax, SYS_WRITE	# system call number for write
-    	mov rdi, STDOUT		# file descriptor (stdout)
+    mov rdi, STDOUT		# file descriptor (stdout)
 	lea rsi, out		# pointer to message string
-        mov rdx, out_len	# length of message
-        syscall			# invoke system call
+    mov rdx, out_len	# length of message
+    syscall 			# invoke system call
 
 	#--------------------------------
 	# @brief convert sum to ASCII string for display
-        mov rax, [sum]		# load sum value into rax for division
-        lea rsi, [buffer + 31]	# point to end of buffer (null terminator position)
-        mov byte ptr [rsi], 0	# place null terminator
+    mov rax, [sum]		# load sum value into rax for division
+    lea rsi, [buffer + 31]	# point to end of buffer (null terminator position)
+    mov byte ptr [rsi], 0	# place null terminator
 	dec rsi			# move back one position
 	mov rbx, 10		# divisor for base-10 conversion
 
