@@ -43,6 +43,7 @@ _start:
 	mov rdi, STDOUT
 	lea rsi, input_prompt
 	mov rdx, input_prompt_len
+	syscall
 
 	# Read number of elements
 	call read_number
@@ -122,7 +123,7 @@ skip_space:
 print_done:
 	# Print newline
 	mov rax, SYS_WRITE
-	mov rax, STDOUT
+	mov rdi, STDOUT
 	lea rsi, newline
 	mov rdx, 1
 	syscall
@@ -259,8 +260,9 @@ print_number:
 convert_digits:
 	cmp eax, 0
 	je print_digits
-	
-	mov ebx, 0
+
+	mov edx, 0	
+	mov ebx, 10
 	div ebx					# eax = eax/10, edx = remainder
 	add dl, '0'				# convert remainder to ASCII
 	mov [rsi], dl
