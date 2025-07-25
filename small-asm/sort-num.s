@@ -135,12 +135,58 @@ exit_code:
 
 #-----------------------------------
 # @brief bubble sort logic here (absolutely cooked brain)
+bubble_sort:
+	push rbp
+	mov rbp, rsp
+	push rbx
+	push rcx
+	push rdx
+	push rsi
+	push rdi
+
+	mov ebx, [array_size]		# n
+	dec ebx				# n - 1
 	
+outer_loop:
+	cmp ebx, 0
+	jle sort_done
+	
+	mov ecx, 0			# i = 0
 
+inner_loop:
+	mp ecx, ebx
+	jge outer_next
 
+	# Compare array[i] and array[i+1]
+	mov eax, [array + rcx * 4]		# array[i]
+	mov edx, [array + rcx * 4 + 4]		# array[i + 1]
 
+	cmp eax, edx
+	jle no_swap
 
+	# swap elements
+	mov [array + rcx * 4], edx
+	mov [array + rcx * 4 + 4], eax
 
+no_swap:
+	inc rcx
+	jmp inner_loop
+
+outer_next:
+	dec ebx
+	jmp outer_loop
+
+sort_done:
+	pop rdi
+	pop rsi
+	pop rdx
+	pop rcx
+	pop rbx
+	pop rbp
+	ret
+
+#------------------------------------------
+# @brief Read number from stdin
 read_number:
 	push rbp
 	mov rbp, rsp
