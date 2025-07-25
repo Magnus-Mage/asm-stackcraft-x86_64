@@ -15,7 +15,7 @@ SYS_EXIT	=	60	# terminate the program
     input_prompt_len  =   . - input_prompt - 1
 
     element_prompt    :   .asciz  "Enter Element: \n"     		
-    element_prompt    =   . - element_prompt - 1
+    element_prompt_len=   . - element_prompt - 1
 
     output_msg	      :	  .asciz "Sorted array: \n"			
     output_msg_len    =   . - output_msg - 1    
@@ -53,7 +53,7 @@ _start:
 	mov ecx, 0				# Counter
 
 read_loop:
-	cmp ecx, rbx
+	cmp ecx, ebx
 	jge read_done
 
 	# Print element prompt	
@@ -62,7 +62,7 @@ read_loop:
 	mov rax, SYS_WRITE
 	mov rdi, STDOUT
 	lea rsi, element_prompt
-	rdx rdx, element_prompt_len
+	mov rdx, element_prompt_len
 	syscall
 	pop rbx
 	pop rcx
@@ -154,7 +154,7 @@ outer_loop:
 	mov ecx, 0			# i = 0
 
 inner_loop:
-	mp ecx, ebx
+	cmp ecx, ebx
 	jge outer_next
 
 	# Compare array[i] and array[i+1]
@@ -218,7 +218,7 @@ convert_loop:
 	jg convert_done
 
 	sub cl, '0'				# Convert to digit
-	mut ebx					# eax *= 10
+	mul ebx					# eax *= 10
 	add eax, ecx				# add digit
 	inc rsi
 	jmp convert_loop
@@ -230,8 +230,67 @@ convert_done:
 	pop rbp
 	ret
 
-	
+#-------------------------------------------
+# @brief Print a number from the array to stdout
 
+print_number:
+	push rbp
+	mov rbp, rsp
+	push rbx
+	push rcx
+	push rdx
+	push rsi
+	push rdi
+
+	mov ebx, 10				# divisor
+	lea rsi, num_buffer
+	add rsi, 15
+	mov byte ptr [rsi], 0			# null terminator
+	dec rsi
+	
+	cmp eax, 0
+	jne convert_digits
+
+	# Handle zero case
+	mov byte ptr [rsi], '0'
+	dec rsi
+	jmp print_digits
+
+convert_digits:
+	cmp eax, 0
+	je print_digits
+	
+	mov ebx, 0
+	div ebx					# eax = eax/10, edx = remainder
+	add dl, '0'				# convert remainder to ASCII
+	mov [rsi], dl
+	dec rsi
+	jmp convert_digits
+
+print_digits:
+	inc rsi					# point to the first digit
+	
+	# Calculate the length
+	lea rdi, num_buffer
+	add rdi, 15
+	sub rdi, rsi				# Length = end - start
+
+	# Print the number
+	mov rax, SYS_WRITE
+	push rdi
+	mov rdi, STDOUT				# stdout
+	mov rdx, [rsp]				# length
+	syscall 
+	pop rdi
+
+	pop rdi
+	pop rsi
+	pop rdx
+	pop rcx
+	pop rbx
+	pop rbp
+	ret
+	
 
 
 
