@@ -47,13 +47,72 @@ _start:
 	lea rsi, input_prompt
 	mov rdx, input_prompt_len
 	syscall
+    
+    # Read Number of strings    
+    call read_number
+    mov [string_count], eax
+    mov ecx, eax                            # Store string count    
 
+    # Initialize string storage pointers
+    call init_strings_done
 
+    # Read strings
+read_string_loop:
+    
+    # Print string prompt   
+    push rcx
+    mov rax, SYS_WRITE
+    mov rdi, STDOUT
+    lea rsi, string_prompt
+    mov rdx, string_prompt_len
+    syscall
 
+    pop rcx
 
+    # Read string into the appropiate storage location
+    push rcx
+    call read_string
+    pop rcx
 
+    jmp read_string_loop
 
+read_string_done:
+    # Sort the strings
+    call bubble_sort_strings
 
+    # Print sorted strings message
+    mov rax, SYS_WRITE
+    mov rdi, STDOUT
+    lea rsi, output_msg
+    mov rdx, output_msg_len
+    syscall
+
+    # Print sorted strings
+    mov ecx, [string_count]
+print_string_loop:
+    # Get pointer to the current string
+    mov rax, rcx                        # Pointer to the string
+    mov rdx, 8                          # Each pointer is of 8 bytes 
+    mul rdx
+    lea rsi, string_ptrs
+    add rsi, rax
+    mov rsi, [rsi]
+
+    # Print the string
+    push rcx
+    call print_string
+    pop rcx
+
+    # Print newline
+    push rcx
+    mov rax, SYS_WRITE
+    mov rdi, STDOUT
+    lea rsi, newline
+    mov rdx, 1
+    syscall
+    pop rcx
+
+    jmp print_string_loop
 
 # @brief Exit_Code
 exit_code:
