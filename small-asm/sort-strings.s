@@ -54,7 +54,7 @@ _start:
     mov ecx, eax                            # Store string count    
 
     # Initialize string storage pointers
-    call init_strings_done
+    call init_strings_pointers
 
     # Read strings
 read_string_loop:
@@ -119,3 +119,45 @@ exit_code:
 	xor edi, edi
 	mov rax, SYS_EXIT	
 	syscall	
+
+#------------------------------------------
+# @brief Initialize string pointers to point to the storage location
+init_strings_pointers:
+    push rbp
+    mov rbp, rsp
+    push rbx
+    push rcx
+    push rdx
+
+
+    mov ecx, MAX_STRINGS            # Counter
+    lea rbx, string_storage         # Base address of string storage
+    lea rdx, string_ptrs            # Base address of pointer to the string
+
+init_loop:
+    # Calculate storage address for string i : base + (i * MAX_STRING_SIZE)
+    mov rax, rcx
+    mov rsi, MAX_STRING_SIZE
+    mul rsi
+    add rax, rbx                    # rax = base + (i * MAX_STRING_SIZE)
+
+    # Store pointer in pointer Array
+    mov rsi, rcx
+    shl rsi, 3                      # rsi = i * 8 (pointer size)
+    add rsi, rdx                    # rsi = &string_ptrs[i]
+    mov [rsi], rax                  # string_ptrs[i] = storage address
+
+    jmp init_loop
+
+init_done:
+    pop rdx
+    pop rcx
+    pop rbx
+    pop rbp
+    ret
+
+#---------------------------------------
+# @brief Read a string from stdin and store it
+read_string:
+
+
