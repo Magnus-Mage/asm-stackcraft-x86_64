@@ -73,12 +73,9 @@ read_string_loop:
     pop rbx
     pop rcx
 
-    # Read string into the appropriate storage location
-    push rcx
-    push rbx
+    # Read string - pass index in rdi
+    mov rdi, rcx                            # Pass current index in rdi
     call read_string
-    pop rbx
-    pop rcx
 
     inc ecx                                 # Increment counter
     jmp read_string_loop
@@ -97,7 +94,8 @@ read_string_done:
     # Print sorted strings
     mov ecx, 0                              # Initialize counter to 0
 print_string_loop:
-    cmp ecx, [string_count]                 # Check if we've printed all strings
+    mov eax, [string_count]                 # Load string_count into eax first
+    cmp ecx, eax                            # Check if we've printed all strings
     jge exit_code                           # Jump to exit if done
     
     # Get pointer to the current string
@@ -174,6 +172,7 @@ init_done:
 
 #---------------------------------------
 # @brief Read a string from stdin and store it
+# @param rdi: current string index
 read_string:
     push rbp
     mov rbp, rsp
@@ -181,6 +180,7 @@ read_string:
     push rcx
     push rdx
     push rsi
+    push rdi                                # Save the index parameter
     
     # Read input into buffer
     mov rax, SYS_READ
@@ -189,12 +189,12 @@ read_string:
     mov rdx, MAX_STRING_SIZE - 1            # Leave space for null terminator
     syscall
 
-    # Get current string index from stack context
-    # The index is passed via the stack from the calling function
-    mov ecx, [rsp + 40]                     # Get ecx from stack (pushed in main loop)
-
+    # Get the string index from the saved parameter
+    pop rdi                                 # Restore the index parameter
+    push rdi                                # Save it again for cleanup
+    
     # Get pointer to the current string storage
-    mov rax, rcx                            # Move index to rax
+    mov rax, rdi                            # Move index to rax
     shl rax, 3                              # rax = index * 8 (pointer size)
     lea rsi, string_ptrs                    # Load address of pointer array
     add rsi, rax                            # Add offset to get &string_ptrs[index]
@@ -216,6 +216,7 @@ copy_string:
 copy_done:
     mov byte ptr [rdi], 0                   # Add null terminator to string
 
+    pop rdi                                 # Clean up stack
     pop rsi
     pop rdx
     pop rcx
